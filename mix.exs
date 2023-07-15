@@ -31,7 +31,8 @@ defmodule TeslaCodegen.MixProject do
       # tools
       {:credo, "~> 1.7", only: [:dev, :test], runtime: false},
       {:dialyxir, "~> 1.3", only: [:dev, :test], runtime: false},
-      {:ex_doc, "~> 0.30", only: :dev, runtime: false}
+      {:ex_doc, "~> 0.30", only: :dev, runtime: false},
+      {:styler, "~> 0.8", only: [:dev, :test], runtime: false}
     ]
   end
 
