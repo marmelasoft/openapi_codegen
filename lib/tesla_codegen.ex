@@ -23,7 +23,7 @@ defmodule TeslaCodegen do
     quote do
       defmodule unquote(:"#{name}.#{key}") do
         @moduledoc unquote("Structure for #{key} component")
-        defstruct(unquote(properties |> Map.keys() |> Enum.map(&String.to_atom/1)))
+        defstruct(unquote(properties |> Map.keys() |> Enum.map(&Macro.underscore/1) |> Enum.map(&String.to_atom/1)))
       end
     end
   end
