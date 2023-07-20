@@ -10,24 +10,28 @@ defmodule TeslaCodegenTest do
   describe "generate/1" do
     test "generates components" do
       content = File.read!("test/support/fixtures/openapi_petstore.json")
-      %{schemas: result} = TeslaCodegen.generate(PetStore, "tmp", content)
+      output_path = "tmp"
 
-      assert result == [
-               "tmp/components/Address.ex",
-               "tmp/components/ApiResponse.ex",
-               "tmp/components/Category.ex",
-               "tmp/components/Customer.ex",
-               "tmp/components/Order.ex",
-               "tmp/components/Pet.ex",
-               "tmp/components/Tag.ex",
-               "tmp/components/User.ex"
-             ]
+      components = [
+        "Address",
+        "ApiResponse",
+        "Category",
+        "Customer",
+        "Order",
+        "Pet",
+        "Tag",
+        "User"
+      ]
 
-      Enum.each(result, fn path ->
-        assert File.exists?(path)
-        fixture_path = path |> String.split("/") |> Enum.drop(1) |> Path.join()
-        assert File.read!(path) == File.read!("test/support/fixtures/expected/#{fixture_path}")
-      end)
+      %{schemas: result} = TeslaCodegen.generate(PetStore, output_path, content)
+
+      assert result == Enum.map(components, &Path.join(output_path <> "/components", "#{&1}.ex"))
+
+      for component <- components do
+        output_file = Path.join(output_path <> "/components", "#{component}.ex")
+        assert File.exists?(output_file)
+        assert File.read!(output_file) == File.read!("test/support/fixtures/expected/components/#{component}.ex")
+      end
     end
   end
 end
