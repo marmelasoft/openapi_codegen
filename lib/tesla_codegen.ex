@@ -14,19 +14,21 @@ defmodule TeslaCodegen do
   end
 
   defp generate_component(name, path, {key, %{"properties" => properties}}) do
-    ast =
-      quote do
-        defmodule unquote(:"#{name}.#{key}") do
-          @moduledoc unquote("Structure for #{key} component")
-          defstruct(unquote(properties |> Map.keys() |> Enum.map(&String.to_atom/1)))
-        end
-      end
-
-    ast_to_file!(ast, key, path)
+    name
+    |> build_component_ast(key, properties)
+    |> write_ast_to_file!(key, Path.join(path, "components"))
   end
 
-  defp ast_to_file!(ast, key, path) do
-    path = Path.join(path, "components")
+  defp build_component_ast(name, key, properties) do
+    quote do
+      defmodule unquote(:"#{name}.#{key}") do
+        @moduledoc unquote("Structure for #{key} component")
+        defstruct(unquote(properties |> Map.keys() |> Enum.map(&String.to_atom/1)))
+      end
+    end
+  end
+
+  defp write_ast_to_file!(ast, key, path) do
     File.mkdir_p!(path)
 
     file_path = Path.join(path, "#{key}.ex")
