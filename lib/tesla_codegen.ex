@@ -6,6 +6,8 @@ defmodule TeslaCodegen do
   @doc """
   Generates files from OpenAPI specification and returns the paths for the generated files.
   """
+  @path_elements_pattern ~r/{([^}]*)}/
+
   @spec generate(Path.t(), binary()) :: %{schemas: list(Path.t()), client: Path.t()}
   def generate(path, spec) when is_binary(spec) do
     name = path |> Path.split() |> Enum.take(-1) |> hd() |> Macro.camelize()
@@ -66,24 +68,12 @@ defmodule TeslaCodegen do
     do: generate_function_ast(name, path, content, :delete)
 
   defp generate_function_ast(name, path, %{"operationId" => func_name}, method) do
-    pattern = ~r/{([^}]*)}/
-
     arguments =
-      pattern
+      @path_elements_pattern
       |> Regex.scan(path)
       |> Enum.map(fn [_, arg] -> arg |> String.to_atom() |> Macro.var(name) end)
 
-    path =
-      pattern
-      |> Regex.split(path, include_captures: true)
-      |> Enum.reject(&(&1 == ""))
-      |> Enum.map(fn path ->
-        case Regex.run(~r/^{([^}]*)}$/, path) do
-          [_, path] -> path |> String.to_atom() |> Macro.var(name)
-          _ -> path
-        end
-      end)
-      |> then(&quote do: Enum.join(unquote(&1)))
+    path = generate_path_interpolation(name, path)
 
     quote do
       def unquote(:"#{Macro.underscore(func_name)}")(unquote_splicing(arguments)) do
@@ -97,6 +87,25 @@ defmodule TeslaCodegen do
         )
       end
     end
+  end
+
+  defp generate_path_interpolation(name, path) do
+    @path_elements_pattern
+    |> Regex.split(path, include_captures: true)
+    |> Enum.reject(&(&1 == ""))
+    |> Enum.map(fn path ->
+      case Regex.run(@path_elements_pattern, path) do
+        [_, path] ->
+          path
+          |> String.to_atom()
+          |> Macro.var(name)
+          |> then(&quote(do: :"Elixir.Kernel".to_string(unquote(&1)) :: binary))
+
+        _ ->
+          quote(do: unquote(path))
+      end
+    end)
+    |> then(&{:<<>>, [], &1})
   end
 
   defp write_ast_to_file!(ast, key, path) do
