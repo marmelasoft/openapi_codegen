@@ -12,7 +12,10 @@ defmodule TeslaCodegen do
   def generate(path, spec) when is_binary(spec) do
     name = path |> Path.split() |> Enum.take(-1) |> hd() |> Macro.camelize()
     spec = Jason.decode!(spec)
-    %{schemas: generate_schemas(name, path, spec), client: generate_client(name, path, spec)}
+    schemas = generate_schemas(name, path, spec)
+    schema_file_paths = Enum.map(schemas, &Map.get(&1, :path))
+
+    %{schemas: schema_file_paths, client: generate_client(name, path, spec)}
   end
 
   # Generate Components
@@ -21,16 +24,24 @@ defmodule TeslaCodegen do
   end
 
   defp generate_component(name, path, {key, %{"properties" => properties}}) do
-    name
-    |> build_component_ast(key, properties)
-    |> write_ast_to_file!(key, Path.join(path, "components"))
+    component = build_component_ast(name, key, properties)
+    file = write_ast_to_file!(component, key, Path.join(path, "components"))
+
+    %{path: file, component: component}
   end
 
   defp build_component_ast(name, key, properties) do
     quote do
       defmodule unquote(String.to_atom("Elixir.#{name}.#{key}")) do
         @moduledoc unquote("Structure for #{key} component")
-        defstruct(unquote(properties |> Map.keys() |> Enum.map(&Macro.underscore/1) |> Enum.map(&String.to_atom/1)))
+        defstruct(
+          unquote(
+            properties
+            |> Map.keys()
+            |> Enum.map(&Macro.underscore/1)
+            |> Enum.map(&String.to_atom/1)
+          )
+        )
       end
     end
   end
@@ -67,27 +78,78 @@ defmodule TeslaCodegen do
   defp generate_function_ast(name, {path, %{"delete" => content}}),
     do: generate_function_ast(name, path, content, :delete)
 
-  defp generate_function_ast(name, path, %{"operationId" => func_name}, method) do
+  defp generate_function_ast(name, path, %{"operationId" => func_name} = schema, method) do
     arguments =
       @path_elements_pattern
       |> Regex.scan(path)
       |> Enum.map(fn [_, arg] -> arg |> String.to_atom() |> Macro.var(name) end)
+
+    request_body = generate_request_body_argument(name, schema)
+
+    arguments =
+      case request_body do
+        nil -> arguments
+        {_, ast} -> arguments ++ [ast]
+      end
 
     path = generate_path_interpolation(name, path)
 
     quote do
       def unquote(:"#{Macro.underscore(func_name)}")(unquote_splicing(arguments)) do
         unquote(
-          case method do
-            :get -> quote do: get(unquote(path))
-            :post -> quote do: post(unquote(path))
-            :put -> quote do: put(unquote(path))
-            :delete -> quote do: delete(unquote(path))
+          cond do
+            method == :get ->
+              quote do: get(unquote(path))
+
+            method == :post and is_nil(request_body) ->
+              quote do: post(unquote(path))
+
+            method == :post ->
+              quote do: post(unquote(path), unquote(elem(request_body, 0)))
+
+            method == :put ->
+              quote do: put(unquote(path))
+
+            method == :delete ->
+              quote do: delete(unquote(path))
+
+            true ->
+              raise "Unknown method #{method}"
           end
         )
       end
     end
   end
+
+  defp generate_request_body_argument(name, %{
+         "requestBody" => %{"content" => %{"application/json" => %{"schema" => %{"$ref" => ref}}}}
+       }) do
+    ref
+    |> String.split("/")
+    |> Enum.take(-1)
+    |> hd()
+    |> then(&String.to_atom("#{name}.#{&1}"))
+    |> then(fn module ->
+      var =
+        module
+        |> Atom.to_string()
+        |> String.split(".")
+        |> Enum.take(-1)
+        |> hd()
+        |> String.downcase()
+        |> String.to_atom()
+        |> Macro.var(name)
+
+      ast =
+        quote do
+          %unquote(module){} = unquote(var)
+        end
+
+      {var, ast}
+    end)
+  end
+
+  defp generate_request_body_argument(_, _), do: nil
 
   defp generate_path_interpolation(name, path) do
     @path_elements_pattern
