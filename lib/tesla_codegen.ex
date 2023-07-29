@@ -34,6 +34,7 @@ defmodule TeslaCodegen do
     quote do
       defmodule unquote(String.to_atom("Elixir.#{name}.#{key}")) do
         @moduledoc unquote("Structure for #{key} component")
+        @derive Jason.Encoder
         defstruct(
           unquote(
             properties
@@ -85,6 +86,7 @@ defmodule TeslaCodegen do
       |> Enum.map(fn [_, arg] -> arg |> String.to_atom() |> Macro.var(name) end)
 
     request_body = generate_request_body_argument(name, schema)
+    url_parameters = generate_url_parameters(name, schema)
 
     arguments =
       case request_body do
@@ -92,7 +94,21 @@ defmodule TeslaCodegen do
         {_, ast} -> arguments ++ [ast]
       end
 
-    path = generate_path_interpolation(name, path)
+    arguments =
+      case url_parameters do
+        [] -> arguments
+        url_parameters -> arguments ++ Enum.map(url_parameters, &elem(&1, 0))
+      end
+
+    path =
+      case url_parameters do
+        [] ->
+          generate_path_interpolation(name, path)
+
+        url_parameters ->
+          path_params = Enum.flat_map(url_parameters, &elem(&1, 1))
+          quote do: Tesla.build_url(unquote(generate_path_interpolation(name, path)), unquote(path_params))
+      end
 
     quote do
       def unquote(:"#{Macro.underscore(func_name)}")(unquote_splicing(arguments)) do
@@ -124,6 +140,23 @@ defmodule TeslaCodegen do
   defp generate_request_body_argument(name, %{
          "requestBody" => %{"content" => %{"application/json" => %{"schema" => %{"$ref" => ref}}}}
        }) do
+    ref_to_var_ast(name, ref, :single)
+  end
+
+  defp generate_request_body_argument(name, %{
+         "requestBody" => %{"content" => %{"application/json" => %{"schema" => %{"items" => %{"$ref" => ref}}}}}
+       }) do
+    ref_to_var_ast(name, ref, :array)
+  end
+
+  defp generate_request_body_argument(name, %{"requestBody" => _}) do
+    var = Macro.var(:body, name)
+    {var, quote(do: unquote(var))}
+  end
+
+  defp generate_request_body_argument(_, _), do: nil
+
+  defp ref_to_var_ast(name, ref, type) do
     ref
     |> String.split("/")
     |> Enum.take(-1)
@@ -136,20 +169,47 @@ defmodule TeslaCodegen do
         |> String.split(".")
         |> Enum.take(-1)
         |> hd()
+        |> then(
+          &case type do
+            :array -> "#{&1}s"
+            _ -> &1
+          end
+        )
         |> String.downcase()
         |> String.to_atom()
         |> Macro.var(name)
 
       ast =
-        quote do
-          %unquote(module){} = unquote(var)
+        case type do
+          :single -> quote do: %unquote(module){} = unquote(var)
+          _ -> quote do: unquote(var)
         end
 
       {var, ast}
     end)
   end
 
-  defp generate_request_body_argument(_, _), do: nil
+  defp generate_url_parameters(name, %{"parameters" => parameters}) do
+    Enum.flat_map(parameters, &generate_url_parameter(name, &1))
+  end
+
+  defp generate_url_parameters(_, _), do: []
+
+  defp generate_url_parameter(name, %{"in" => "query"} = parameter), do: parameter_to_ast(name, parameter)
+
+  defp generate_url_parameter(_, _), do: []
+
+  defp parameter_to_ast(name, parameter) do
+    var_name =
+      parameter
+      |> Map.get("name")
+      |> Macro.underscore()
+      |> String.to_atom()
+
+    var = Macro.var(var_name, name)
+
+    [{var, quote(do: [{unquote(var_name), unquote(var)}])}]
+  end
 
   defp generate_path_interpolation(name, path) do
     @path_elements_pattern

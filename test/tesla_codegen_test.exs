@@ -5,7 +5,7 @@ defmodule TeslaCodegenTest do
 
   setup do
     content = File.read!("test/support/fixtures/openapi_petstore.json")
-    output_path = "tmp/pet_store"
+    output_path = "tmp/lib/pet_store"
 
     # on_exit(fn -> File.rm_rf!("tmp") end)
     %{content: content, output_path: output_path}
@@ -36,7 +36,9 @@ defmodule TeslaCodegenTest do
     end
 
     test "generates client", %{content: content, output_path: output_path} do
-      %{client: _result} = TeslaCodegen.generate(output_path, content)
+      %{client: output_file} = TeslaCodegen.generate(output_path, content)
+      assert File.exists?(output_file)
+      assert File.read!(output_file) == File.read!("test/support/fixtures/expected/PetStore.ex")
     end
   end
 end
