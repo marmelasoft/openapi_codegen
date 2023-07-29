@@ -25,14 +25,15 @@ defmodule TeslaCodegen.MixProject do
 
   defp deps do
     [
+      {:tesla, "~> 1.7"},
       # parsers
       {:jason, "~> 1.4"},
 
       # tools
-      {:credo, "~> 1.7", only: [:dev, :test], runtime: false},
+      {:styler, "~> 0.8"},
+      {:credo, "~> 1.7"},
       {:dialyxir, "~> 1.3", only: [:dev, :test], runtime: false},
-      {:ex_doc, "~> 0.30", only: :dev, runtime: false},
-      {:styler, "~> 0.8", only: [:dev, :test], runtime: false}
+      {:ex_doc, "~> 0.30", only: :dev, runtime: false}
     ]
   end
 
