@@ -2,21 +2,30 @@ defmodule TeslaCodegen.Client.RequestBody do
   @moduledoc """
   Request body generation operations
   """
+  @doc """
+  Generates request body AST from OpenAPI spec using the `requestBody` key.
 
-  def generate(name, %{"requestBody" => %{"content" => %{"application/json" => %{"schema" => %{"$ref" => ref}}}}}),
-    do: ref_to_var_ast(name, ref, :single)
+  The rules for generation are as follows:
+  * When the request body is of type `application/json` and has a `$ref` key, it will generate a variable with the name of the component and assign it to the variable.
+  * When the request body is of type `application/json` and has items, it will generate a variable with the name of the component plurarized and assign it to the variable.
+  * Otherwise, it will be a variable named `body` and will be assigned to the variable.
+  """
+  def generate(name, spec) do
+    case spec do
+      %{"requestBody" => %{"content" => %{"application/json" => %{"schema" => %{"$ref" => ref}}}}} ->
+        ref_to_var_ast(name, ref, :single)
 
-  def generate(name, %{
-        "requestBody" => %{"content" => %{"application/json" => %{"schema" => %{"items" => %{"$ref" => ref}}}}}
-      }),
-      do: ref_to_var_ast(name, ref, :array)
+      %{"requestBody" => %{"content" => %{"application/json" => %{"schema" => %{"items" => %{"$ref" => ref}}}}}} ->
+        ref_to_var_ast(name, ref, :array)
 
-  def generate(name, %{"requestBody" => _}) do
-    var = Macro.var(:body, name)
-    {var, quote(do: unquote(var))}
+      %{"requestBody" => _} ->
+        var = Macro.var(:body, name)
+        {var, quote(do: unquote(var))}
+
+      _ ->
+        nil
+    end
   end
-
-  def generate(_, _), do: nil
 
   defp ref_to_var_ast(client_module_name, ref, type) do
     component_name = component_name_from_ref(ref, client_module_name)

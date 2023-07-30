@@ -19,13 +19,13 @@ defmodule PetStore do
     get(url)
   end
 
-  def get_pet_by_id(petId) do
-    url = "/pet/#{petId}"
+  def get_pet_by_id(pet_id) do
+    url = "/pet/#{pet_id}"
     get(url)
   end
 
-  def upload_file(petId, body, additional_metadata) do
-    url = Tesla.build_url("/pet/#{petId}/uploadImage", additional_metadata: additional_metadata)
+  def upload_file(pet_id, body, additional_metadata) do
+    url = Tesla.build_url("/pet/#{pet_id}/uploadImage", additional_metadata: additional_metadata)
     post(url, body)
   end
 
@@ -39,8 +39,8 @@ defmodule PetStore do
     post(url, order)
   end
 
-  def get_order_by_id(orderId) do
-    url = "/store/order/#{orderId}"
+  def get_order_by_id(order_id) do
+    url = "/store/order/#{order_id}"
     get(url)
   end
 

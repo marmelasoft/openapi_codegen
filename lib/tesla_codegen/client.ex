@@ -2,6 +2,7 @@ defmodule TeslaCodegen.Client do
   @moduledoc """
   Client generation operations
   """
+  alias TeslaCodegen.Ast
   alias TeslaCodegen.Client.Path
   alias TeslaCodegen.Client.QueryParam
   alias TeslaCodegen.Client.RequestBody
@@ -22,50 +23,65 @@ defmodule TeslaCodegen.Client do
     do: build_client_ast(name, paths, server)
 
   defp build_client_ast(name, paths, server) do
-    name = String.to_atom("Elixir.#{name}")
+    client_module_name = String.to_atom("Elixir.#{name}")
 
     quote do
-      defmodule unquote(name) do
+      defmodule unquote(client_module_name) do
         use Tesla
 
         plug(Tesla.Middleware.BaseUrl, unquote(server))
-        unquote_splicing(generate_functions_ast(name, paths))
+        unquote_splicing(generate_functions_ast(client_module_name, paths))
       end
     end
   end
 
-  defp generate_functions_ast(name, paths), do: Enum.map(paths, &generate_function(name, &1))
+  defp generate_functions_ast(client_module_name, paths), do: Enum.map(paths, &generate_function(client_module_name, &1))
 
-  defp generate_function(name, {path, %{"get" => content}}), do: generate_function(name, path, content, :get)
-  defp generate_function(name, {path, %{"post" => content}}), do: generate_function(name, path, content, :post)
-  defp generate_function(name, {path, %{"put" => content}}), do: generate_function(name, path, content, :put)
-  defp generate_function(name, {path, %{"delete" => content}}), do: generate_function(name, path, content, :delete)
+  defp generate_function(client_module_name, spec) do
+    case spec do
+      {path, %{"get" => content}} -> generate_function(client_module_name, path, content, :get)
+      {path, %{"post" => content}} -> generate_function(client_module_name, path, content, :post)
+      {path, %{"put" => content}} -> generate_function(client_module_name, path, content, :put)
+      {path, %{"delete" => content}} -> generate_function(client_module_name, path, content, :delete)
+    end
+  end
 
-  defp generate_function(name, path, %{"operationId" => func_name} = schema, method) do
-    request_body_arguments = RequestBody.generate(name, schema)
-    url_parameters = QueryParam.generate(name, schema)
-    function_arguments = generate_function_arguments(name, path, request_body_arguments, url_parameters)
-    request_path = Path.generate(name, path, url_parameters)
+  defp generate_function(client_module_name, path, %{"operationId" => func_name} = schema, method) do
+    request_body_arguments = RequestBody.generate(client_module_name, schema)
+    url_parameters = QueryParam.generate(client_module_name, schema)
+    request_path = Path.generate(client_module_name, path, url_parameters)
 
+    function_arguments = generate_function_arguments(client_module_name, path, request_body_arguments, url_parameters)
     build_request_function_ast(func_name, method, request_path, function_arguments, request_body_arguments)
   end
 
-  defp generate_function_arguments(name, path, request_body_arguments, url_parameters) do
-    @path_elements_pattern
-    |> Regex.scan(path)
-    |> Enum.map(fn [_, arg] -> arg |> String.to_atom() |> Macro.var(name) end)
-    |> then(fn function_arguments ->
-      case request_body_arguments do
-        nil -> function_arguments
-        {_, ast} -> function_arguments ++ [ast]
-      end
-    end)
-    |> then(fn function_arguments ->
-      case url_parameters do
-        [] -> function_arguments
-        url_parameters -> function_arguments ++ Enum.map(url_parameters, &elem(&1, 0))
-      end
-    end)
+  defp generate_function_arguments(client_module_name, path, request_body_arguments, url_parameters) do
+    path_arguments =
+      @path_elements_pattern
+      |> Regex.scan(path)
+      |> Enum.map(fn [_, arg] -> Ast.to_var(arg, client_module_name) end)
+
+    path_arguments
+    |> maybe_append_request_body_function_argument(request_body_arguments)
+    |> maybe_append_url_parameters_function_arguments(url_parameters, client_module_name)
+  end
+
+  defp maybe_append_request_body_function_argument(function_arguments, request_body_arguments) do
+    case request_body_arguments do
+      nil -> function_arguments
+      {_, ast} -> function_arguments ++ [ast]
+    end
+  end
+
+  defp maybe_append_url_parameters_function_arguments(function_arguments, url_parameters, client_module_name) do
+    case url_parameters do
+      [] ->
+        function_arguments
+
+      url_parameters ->
+        url_parameters = url_parameters |> Keyword.keys() |> Enum.map(&Macro.var(&1, client_module_name))
+        function_arguments ++ url_parameters
+    end
   end
 
   defp build_request_function_ast(func_name, method, request_path, function_arguments, request_body_arguments) do
@@ -80,7 +96,6 @@ defmodule TeslaCodegen.Client do
             method == :post -> quote do: post(url, unquote(elem(request_body_arguments, 0)))
             method == :put -> quote do: put(url)
             method == :delete -> quote do: delete(url)
-            true -> raise "Unknown method #{method}"
           end
         )
       end

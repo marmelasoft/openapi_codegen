@@ -2,12 +2,19 @@ defmodule TeslaCodegen.Client.QueryParam do
   @moduledoc """
   Query param generation operations
   """
+  alias TeslaCodegen.Ast
 
   @doc """
   Generates query param AST from OpenAPI spec using the `parameters` key.
   Returns the variable and the keyword list elements to be used
   """
-  def generate(name, %{"parameters" => parameters}), do: Enum.flat_map(parameters, &generate_url_parameter(name, &1))
+  @spec generate(Atom.t(), map()) :: Keyword.t()
+  def generate(name, %{"parameters" => parameters}),
+    do:
+      parameters
+      |> Enum.flat_map(&generate_url_parameter(name, &1))
+      |> Enum.reduce([], &Keyword.merge/2)
+      |> Enum.reverse()
 
   def generate(_, _), do: []
 
@@ -22,8 +29,8 @@ defmodule TeslaCodegen.Client.QueryParam do
       |> Macro.underscore()
       |> String.to_atom()
 
-    var = Macro.var(var_name, name)
+    var = Ast.to_var(var_name, name)
 
-    [{var, quote(do: [{unquote(var_name), unquote(var)}])}]
+    [quote(do: [{unquote(var_name), unquote(var)}])]
   end
 end

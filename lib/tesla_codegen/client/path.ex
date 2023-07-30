@@ -2,8 +2,9 @@ defmodule TeslaCodegen.Client.Path do
   @moduledoc """
   Path generation operations
   """
-  @path_elements_pattern ~r/{([^}]*)}/
+  alias TeslaCodegen.Ast
 
+  @path_elements_pattern ~r/{([^}]*)}/
   @doc """
   Generates an interpolated string using:
   * `path` to generate the request path with string interpolation
@@ -12,8 +13,7 @@ defmodule TeslaCodegen.Client.Path do
   def generate(client_module_name, path, []), do: generate_path_interpolation(client_module_name, path)
 
   def generate(client_module_name, path, url_parameters) do
-    path_params = Enum.flat_map(url_parameters, &elem(&1, 1))
-    quote do: Tesla.build_url(unquote(generate_path_interpolation(client_module_name, path)), unquote(path_params))
+    quote do: Tesla.build_url(unquote(generate_path_interpolation(client_module_name, path)), unquote(url_parameters))
   end
 
   defp generate_path_interpolation(client_module_name, path) do
@@ -24,8 +24,7 @@ defmodule TeslaCodegen.Client.Path do
       case Regex.run(@path_elements_pattern, path) do
         [_, path] ->
           path
-          |> String.to_atom()
-          |> Macro.var(client_module_name)
+          |> Ast.to_var(client_module_name)
           |> then(&quote(do: :"Elixir.Kernel".to_string(unquote(&1)) :: binary))
 
         _ ->

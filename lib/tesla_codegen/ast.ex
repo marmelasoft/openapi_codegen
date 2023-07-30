@@ -21,4 +21,21 @@ defmodule TeslaCodegen.Ast do
 
     file_path
   end
+
+  @doc """
+  Converts a string or atom into a variable
+  """
+  @spec to_var(binary() | atom(), atom()) :: Macro.t()
+  def to_var(name, context) when is_atom(name) do
+    name
+    |> Atom.to_string()
+    |> to_var(context)
+  end
+
+  def to_var(name, context) do
+    name
+    |> Macro.underscore()
+    |> String.to_atom()
+    |> Macro.var(context)
+  end
 end
