@@ -22,8 +22,12 @@ defmodule TeslaCodegen.Client do
     * `parameters` to generate the URL parameters (if they are of type `query`)
   """
   @spec generate(String.t(), map()) :: Macro.t()
-  def generate(name, %{"paths" => paths, "servers" => [%{"url" => server} | _]}),
-    do: build_client_ast(name, paths, server)
+  def generate(name, %{"paths" => paths, "servers" => servers}) do
+    case servers do
+      [%{"url" => server} | _] -> build_client_ast(name, paths, server)
+      _ -> build_client_ast(name, paths, "")
+    end
+  end
 
   defp build_client_ast(name, paths, server) do
     client_module_name = String.to_atom("Elixir.#{name}")
@@ -46,6 +50,7 @@ defmodule TeslaCodegen.Client do
       {path, %{"post" => content}} -> generate_function(client_module_name, path, content, :post)
       {path, %{"put" => content}} -> generate_function(client_module_name, path, content, :put)
       {path, %{"delete" => content}} -> generate_function(client_module_name, path, content, :delete)
+      {path, %{"patch" => content}} -> generate_function(client_module_name, path, content, :patch)
     end
   end
 
@@ -82,23 +87,31 @@ defmodule TeslaCodegen.Client do
         function_arguments
 
       url_parameters ->
-        url_parameters = url_parameters |> Keyword.keys() |> Enum.map(&Macro.var(&1, client_module_name))
+        url_parameters =
+          url_parameters
+          |> Keyword.keys()
+          |> Enum.map(&Ast.to_var(&1, client_module_name))
+
         function_arguments ++ url_parameters
     end
   end
 
   defp build_request_function_ast(func_name, method, request_path, function_arguments, request_body_arguments) do
     quote do
-      def unquote(:"#{Macro.underscore(func_name)}")(unquote_splicing(function_arguments)) do
+      def unquote(Ast.sanitize_name(func_name))(unquote_splicing(function_arguments)) do
         url = unquote(request_path)
 
         unquote(
           cond do
             method == :get -> quote do: get(url)
-            method == :post and is_nil(request_body_arguments) -> quote do: post(url)
+            method == :post and is_nil(request_body_arguments) -> quote do: post(url, %{})
             method == :post -> quote do: post(url, unquote(elem(request_body_arguments, 0)))
-            method == :put -> quote do: put(url)
-            method == :delete -> quote do: delete(url)
+            method == :put and is_nil(request_body_arguments) -> quote do: put(url, %{})
+            method == :put -> quote do: put(url, unquote(elem(request_body_arguments, 0)))
+            method == :patch and is_nil(request_body_arguments) -> quote do: patch(url, %{})
+            method == :patch -> quote do: patch(url, unquote(elem(request_body_arguments, 0)))
+            method == :delete and is_nil(request_body_arguments) -> quote do: delete(url)
+            method == :delete -> quote do: delete(url, unquote(elem(request_body_arguments, 0)))
           end
         )
       end
