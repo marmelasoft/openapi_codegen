@@ -5,57 +5,67 @@ defmodule PetStore do
   plug(Tesla.Middleware.BaseUrl, "https://petstore3.swagger.io/api/v3")
 
   def add_pet(%PetStore.Pet{} = pet) do
-    post("/pet", pet)
+    url = "/pet"
+    post(url, pet)
   end
 
   def find_pets_by_status(status) do
-    get(Tesla.build_url("/pet/findByStatus", status: status))
+    url = Tesla.build_url("/pet/findByStatus", status: status)
+    get(url)
   end
 
   def find_pets_by_tags(tags) do
-    get(Tesla.build_url("/pet/findByTags", tags: tags))
+    url = Tesla.build_url("/pet/findByTags", tags: tags)
+    get(url)
   end
 
   def get_pet_by_id(petId) do
-    get("/pet/#{petId}")
+    url = "/pet/#{petId}"
+    get(url)
   end
 
   def upload_file(petId, body, additional_metadata) do
-    post(
-      Tesla.build_url("/pet/#{petId}/uploadImage", additional_metadata: additional_metadata),
-      body
-    )
+    url = Tesla.build_url("/pet/#{petId}/uploadImage", additional_metadata: additional_metadata)
+    post(url, body)
   end
 
   def get_inventory do
-    get("/store/inventory")
+    url = "/store/inventory"
+    get(url)
   end
 
   def place_order(%PetStore.Order{} = order) do
-    post("/store/order", order)
+    url = "/store/order"
+    post(url, order)
   end
 
   def get_order_by_id(orderId) do
-    get("/store/order/#{orderId}")
+    url = "/store/order/#{orderId}"
+    get(url)
   end
 
   def create_user(%PetStore.User{} = user) do
-    post("/user", user)
+    url = "/user"
+    post(url, user)
   end
 
   def create_users_with_list_input(users) do
-    post("/user/createWithList", users)
+    url = "/user/createWithList"
+    post(url, users)
   end
 
   def login_user(username, password) do
-    get(Tesla.build_url("/user/login", username: username, password: password))
+    url = Tesla.build_url("/user/login", username: username, password: password)
+    get(url)
   end
 
   def logout_user do
-    get("/user/logout")
+    url = "/user/logout"
+    get(url)
   end
 
   def get_user_by_name(username) do
-    get("/user/#{username}")
+    url = "/user/#{username}"
+    get(url)
   end
 end
