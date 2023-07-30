@@ -2,6 +2,8 @@ defmodule TeslaCodegen.Client.RequestBody do
   @moduledoc """
   Request body generation operations
   """
+  alias TeslaCodegen.Ast
+
   @doc """
   Generates request body AST from OpenAPI spec using the `requestBody` key.
 
@@ -10,16 +12,16 @@ defmodule TeslaCodegen.Client.RequestBody do
   * When the request body is of type `application/json` and has items, it will generate a variable with the name of the component plurarized and assign it to the variable.
   * Otherwise, it will be a variable named `body` and will be assigned to the variable.
   """
-  def generate(name, spec) do
+  def generate(client_module_name, spec) do
     case spec do
       %{"requestBody" => %{"content" => %{"application/json" => %{"schema" => %{"$ref" => ref}}}}} ->
-        ref_to_var_ast(name, ref, :single)
+        ref_to_var_ast(client_module_name, ref, :single)
 
       %{"requestBody" => %{"content" => %{"application/json" => %{"schema" => %{"items" => %{"$ref" => ref}}}}}} ->
-        ref_to_var_ast(name, ref, :array)
+        ref_to_var_ast(client_module_name, ref, :array)
 
       %{"requestBody" => _} ->
-        var = Macro.var(:body, name)
+        var = Ast.to_var(:body, client_module_name)
         {var, quote(do: unquote(var))}
 
       _ ->
@@ -45,6 +47,7 @@ defmodule TeslaCodegen.Client.RequestBody do
     |> String.split("/")
     |> Enum.take(-1)
     |> hd()
+    |> Ast.sanitize_name(:camelize)
     |> then(&String.to_atom("#{client_module_name}.#{&1}"))
   end
 
