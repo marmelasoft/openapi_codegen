@@ -29,7 +29,7 @@ defmodule TeslaCodegenTest do
       assert result == Enum.map(components, &Path.join(output_path <> "/components", "#{&1}.ex"))
 
       for component <- components do
-        output_file = Path.join(output_path <> "/components", "#{component}.ex")
+        output_file = Path.join([output_path, "/components", "#{component}.ex"])
         assert File.exists?(output_file)
         assert File.read!(output_file) == File.read!("test/support/fixtures/expected/components/#{component}.ex")
       end
