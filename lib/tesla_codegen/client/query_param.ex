@@ -6,9 +6,9 @@ defmodule TeslaCodegen.Client.QueryParam do
 
   @doc """
   Generates query param AST from OpenAPI spec using the `parameters` key.
-  Returns the variable and the keyword list elements to be used
+  Returns the variable and the keyword list elements to be used.
   """
-  @spec generate(Atom.t(), map()) :: Keyword.t()
+  @spec generate(atom(), map()) :: Keyword.t()
   def generate(name, %{"parameters" => parameters}),
     do:
       parameters
@@ -22,10 +22,9 @@ defmodule TeslaCodegen.Client.QueryParam do
 
   defp generate_url_parameter(_, _), do: []
 
-  defp parameter_to_ast(name, parameter) do
+  defp parameter_to_ast(name, %{"name" => param_name}) do
     var_name =
-      parameter
-      |> Map.get("name")
+      param_name
       |> Macro.underscore()
       |> String.to_atom()
 

@@ -68,10 +68,10 @@ jobs:
       # - name: 🔍 Analyze the code
       #   run: mix dialyzer --format github
 
-      # - name: 🧹 Check code formating
-      #   run: mix format --check-formatted
-      #   if: always()
+      - name: 🧹 Check code formating
+        run: mix format --check-formatted
+        if: always()
 
-      # - name: 💡 Lint the code
-      #   run: mix credo --strict --all
-      #   if: always()
+      - name: 💡 Lint the code
+        run: mix credo --strict --all
+        if: always()

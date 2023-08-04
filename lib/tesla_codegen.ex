@@ -20,11 +20,11 @@ defmodule TeslaCodegen do
     schemas = Components.generate(name, spec)
     client = Client.generate(name, spec)
 
-    client_file_path = Ast.ast_to_file!(client, name, path)
+    client_file_path = Ast.to_file!(client, name, path)
 
     schema_file_paths =
       Enum.map(schemas, fn {component_name, ast} ->
-        Ast.ast_to_file!(ast, component_name, Path.join(path, "components"))
+        Ast.to_file!(ast, component_name, Path.join(path, "components"))
       end)
 
     %{schemas: schema_file_paths, client: client_file_path}

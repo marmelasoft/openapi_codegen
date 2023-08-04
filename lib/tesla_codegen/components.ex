@@ -1,12 +1,12 @@
 defmodule TeslaCodegen.Components do
   @moduledoc """
-  Component generation operations
+  Component generation operations.
   """
 
   @doc """
-  Generates components AST from OpenAPI spec using the `schemas` key
+  Generates components AST from OpenAPI spec using the `schemas` key.
 
-  Returns the name of the component and the AST for said component
+  Returns the name of the component and the AST for said component.
   """
   @spec generate(String.t(), map()) :: list({String.t(), Macro.t()})
   def generate(name, %{"components" => %{"schemas" => schemas}}), do: Enum.map(schemas, &generate_component(name, &1))

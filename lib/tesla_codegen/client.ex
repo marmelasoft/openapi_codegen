@@ -1,6 +1,6 @@
 defmodule TeslaCodegen.Client do
   @moduledoc """
-  Client generation operations
+  Client generation operations.
   """
   alias TeslaCodegen.Ast
   alias TeslaCodegen.Client.Path
@@ -11,12 +11,15 @@ defmodule TeslaCodegen.Client do
 
   @doc """
   Generates client AST from OpenAPI spec using:
-  * `servers` to generate Tesla middleware for the base URL
-  * `operationId` for the name of the functions
-  * `paths` keys to determine method for the function
-  * `requestBody` to generate the request body argument
-  * `path` to generate the request path with string interpolation
-  * `parameters` to generate the URL parameters (if they are of type `query`)
+
+  ## Params
+
+    * `servers` to generate Tesla middleware for the base URL
+    * `operationId` for the name of the functions
+    * `paths` keys to determine method for the function
+    * `requestBody` to generate the request body argument
+    * `path` to generate the request path with string interpolation
+    * `parameters` to generate the URL parameters (if they are of type `query`)
   """
   @spec generate(String.t(), map()) :: Macro.t()
   def generate(name, %{"paths" => paths, "servers" => [%{"url" => server} | _]}),
