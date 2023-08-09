@@ -7,7 +7,7 @@ defmodule TeslaCodegen do
   alias TeslaCodegen.Components
 
   @spec generate(Path.t(), binary()) :: %{schemas: list(Path.t()), client: Path.t()}
-  def generate(path, spec) when is_binary(spec) do
+  def generate(path, spec_path) do
     name =
       path
       |> Path.split()
@@ -15,7 +15,17 @@ defmodule TeslaCodegen do
       |> hd()
       |> Macro.camelize()
 
-    spec = Jason.decode!(spec)
+    # Path.extname()
+    spec =
+      spec_path
+      |> File.read!()
+      |> then(
+        &case Path.extname(spec_path) do
+          ".json" -> Jason.decode!(&1)
+          ".yml" -> YamlElixir.read_from_string!(&1)
+          ".yaml" -> YamlElixir.read_from_string!(&1)
+        end
+      )
 
     schemas = Components.generate(name, spec)
     client = Client.generate(name, spec)
@@ -23,8 +33,9 @@ defmodule TeslaCodegen do
     client_file_path = Ast.to_file!(client, name, path)
 
     schema_file_paths =
-      Enum.map(schemas, fn {component_name, ast} ->
-        Ast.to_file!(ast, component_name, Path.join(path, "components"))
+      Enum.map(schemas, fn %{component_module_name: component_module_name, ast: ast} ->
+        component_module_name = Atom.to_string(component_module_name)
+        Ast.ast_to_file!(ast, component_module_name, Path.join(path, "components"))
       end)
 
     %{schemas: schema_file_paths, client: client_file_path}

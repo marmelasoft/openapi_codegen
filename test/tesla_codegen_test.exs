@@ -4,15 +4,15 @@ defmodule TeslaCodegenTest do
   doctest TeslaCodegen
 
   setup do
-    content = File.read!("test/support/fixtures/openapi_petstore.json")
+    spec = "test/support/fixtures/openapi_petstore.json"
     output_path = "tmp/lib/pet_store"
 
     on_exit(fn -> File.rm_rf!(output_path) end)
-    %{content: content, output_path: output_path}
+    %{spec: spec, output_path: output_path}
   end
 
   describe "generate/1" do
-    test "generates components", %{content: content, output_path: output_path} do
+    test "generates components", %{spec: spec, output_path: output_path} do
       components = [
         "Address",
         "ApiResponse",
@@ -24,7 +24,7 @@ defmodule TeslaCodegenTest do
         "User"
       ]
 
-      %{schemas: result} = TeslaCodegen.generate(output_path, content)
+      %{schemas: result} = TeslaCodegen.generate(output_path, spec)
 
       assert result == Enum.map(components, &Path.join(output_path <> "/components", "#{&1}.ex"))
 
@@ -35,8 +35,8 @@ defmodule TeslaCodegenTest do
       end
     end
 
-    test "generates client", %{content: content, output_path: output_path} do
-      %{client: output_file} = TeslaCodegen.generate(output_path, content)
+    test "generates client", %{spec: spec, output_path: output_path} do
+      %{client: output_file} = TeslaCodegen.generate(output_path, spec)
       assert File.exists?(output_file)
       assert File.read!(output_file) == File.read!("test/support/fixtures/expected/PetStore.ex")
     end

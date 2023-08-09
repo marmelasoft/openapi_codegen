@@ -20,13 +20,29 @@ defmodule TeslaCodegen.Client.RequestBody do
       %{"requestBody" => %{"content" => %{"application/json" => %{"schema" => %{"items" => %{"$ref" => ref}}}}}} ->
         ref_to_var_ast(client_module_name, ref, :array)
 
+      %{"requestBody" => %{"content" => %{"application/json" => %{"schema" => %{"type" => "object"} = schema}}}} ->
+        ref = find_nested_ref(schema)
+        ref_to_var_ast(client_module_name, ref, :single)
+
+      %{"requestBody" => %{"content" => %{"application/json" => %{"schema" => %{"type" => "array"} = schema}}}} ->
+        ref = find_nested_ref(schema)
+        ref_to_var_ast(client_module_name, ref, :array)
+
       %{"requestBody" => _} ->
-        var = Ast.to_var(:body, client_module_name)
+        var = Macro.var(:body, client_module_name)
         {var, quote(do: unquote(var))}
 
       _ ->
         nil
     end
+  end
+
+  defp find_nested_ref(map, acc \\ []) do
+    Enum.reduce(map, acc, fn
+      {_, v}, _acc when is_map_key(v, "$ref") -> v["$ref"]
+      {_, v}, acc when is_map(v) -> find_nested_ref(v, acc)
+      {_, _}, acc -> acc
+    end)
   end
 
   defp ref_to_var_ast(client_module_name, ref, type) do
@@ -63,6 +79,7 @@ defmodule TeslaCodegen.Client.RequestBody do
         _ -> &1
       end
     )
+    |> Macro.underscore()
     |> String.downcase()
     |> String.to_atom()
     |> Macro.var(client_module_name)

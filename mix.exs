@@ -28,7 +28,7 @@ defmodule TeslaCodegen.MixProject do
       {:tesla, "~> 1.7"},
       # parsers
       {:jason, "~> 1.4"},
-
+      {:yaml_elixir, "~> 2.9"},
       # tools
       {:styler, "~> 0.8"},
       {:credo, "~> 1.7"},
