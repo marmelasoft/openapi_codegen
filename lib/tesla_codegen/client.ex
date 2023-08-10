@@ -96,8 +96,10 @@ defmodule TeslaCodegen.Client do
     end
   end
 
+  # credo:disable-for-next-line Credo.Check.Refactor.CyclomaticComplexity
   defp build_request_function_ast(func_name, method, request_path, function_arguments, request_body_arguments) do
     quote do
+      # credo:disable-for-next-line Credo.Check.Refactor.CyclomaticComplexity
       def unquote(Ast.sanitize_name(func_name))(unquote_splicing(function_arguments)) do
         url = unquote(request_path)
 
