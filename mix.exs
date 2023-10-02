@@ -1,7 +1,7 @@
 defmodule TeslaCodegen.MixProject do
   use Mix.Project
 
-  @app :tesla_codegen
+  @app :openapi_codegen
   @version "0.0.0"
 
   def project do
@@ -26,6 +26,7 @@ defmodule TeslaCodegen.MixProject do
   defp deps do
     [
       {:tesla, "~> 1.7"},
+      {:req, "~> 0.4.0"},
       # parsers
       {:jason, "~> 1.4"},
 

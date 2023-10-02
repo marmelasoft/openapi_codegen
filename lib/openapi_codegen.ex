@@ -1,13 +1,14 @@
-defmodule TeslaCodegen do
+defmodule OpenApiCodegen do
   @moduledoc """
   Generates Tesla client from OpenAPI specification.
   """
-  alias TeslaCodegen.Ast
-  alias TeslaCodegen.Client
-  alias TeslaCodegen.Components
+  alias OpenApiCodegen.Ast
+  alias OpenApiCodegen.Client.Req
+  alias OpenApiCodegen.Client.Tesla
+  alias OpenApiCodegen.Components
 
-  @spec generate(Path.t(), binary()) :: %{schemas: list(Path.t()), client: Path.t()}
-  def generate(path, spec) when is_binary(spec) do
+  @spec generate(Path.t(), binary(), :req | :tesla) :: %{schemas: list(Path.t()), client: Path.t()}
+  def generate(path, spec, adapter) when is_binary(spec) do
     name =
       path
       |> Path.split()
@@ -18,7 +19,12 @@ defmodule TeslaCodegen do
     spec = Jason.decode!(spec)
 
     schemas = Components.generate(name, spec)
-    client = Client.generate(name, spec)
+
+    client =
+      case adapter do
+        :req -> Req.generate(name, spec)
+        :tesla -> Tesla.generate(name, spec)
+      end
 
     client_file_path = Ast.to_file!(client, name, path)
 

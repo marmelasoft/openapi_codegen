@@ -1,8 +1,8 @@
-defmodule TeslaCodegen.Components do
+defmodule OpenApiCodegen.Components do
   @moduledoc """
   Component generation operations.
   """
-  alias TeslaCodegen.Ast
+  alias OpenApiCodegen.Ast
 
   @doc """
   Generates components AST from OpenAPI spec using the `schemas` key.
