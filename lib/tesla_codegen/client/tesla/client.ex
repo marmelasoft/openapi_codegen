@@ -1,11 +1,11 @@
-defmodule TeslaCodegen.Client do
+defmodule OpenApiCodegen.Client.Tesla do
   @moduledoc """
   Client generation operations.
   """
-  alias TeslaCodegen.Ast
-  alias TeslaCodegen.Client.Path
-  alias TeslaCodegen.Client.QueryParam
-  alias TeslaCodegen.Client.RequestBody
+  alias OpenApiCodegen.Ast
+  alias OpenApiCodegen.Client.QueryParam
+  alias OpenApiCodegen.Client.RequestBody
+  alias OpenApiCodegen.Client.Tesla.Path
 
   @path_elements_pattern ~r/{([^}]*)}/
 

@@ -1,4 +1,4 @@
-defmodule TeslaCodegen.Ast do
+defmodule OpenApiCodegen.Ast do
   @moduledoc """
   AST operations.
   """

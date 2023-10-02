@@ -1,8 +1,8 @@
-defmodule TeslaCodegen.Client.QueryParam do
+defmodule OpenApiCodegen.Client.QueryParam do
   @moduledoc """
   Query param generation operations
   """
-  alias TeslaCodegen.Ast
+  alias OpenApiCodegen.Ast
 
   @doc """
   Generates query param AST from OpenAPI spec using the `parameters` key.

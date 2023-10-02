@@ -1,5 +1,5 @@
-defmodule TeslaCodegen.AstTest do
+defmodule OpenApiCodegen.AstTest do
   use ExUnit.Case
 
-  doctest TeslaCodegen.Ast, import: true
+  doctest OpenApiCodegen.Ast, import: true
 end

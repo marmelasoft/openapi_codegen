@@ -1,8 +1,8 @@
-defmodule TeslaCodegen.Client.RequestBody do
+defmodule OpenApiCodegen.Client.RequestBody do
   @moduledoc """
   Request body generation operations
   """
-  alias TeslaCodegen.Ast
+  alias OpenApiCodegen.Ast
 
   @doc """
   Generates request body AST from OpenAPI spec using the `requestBody` key.

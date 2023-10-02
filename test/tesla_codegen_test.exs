@@ -1,7 +1,7 @@
-defmodule TeslaCodegenTest do
+defmodule OpenApiCodegenTest do
   use ExUnit.Case
 
-  doctest TeslaCodegen
+  doctest OpenApiCodegen
 
   setup do
     content = File.read!("test/support/fixtures/openapi_petstore.json")
@@ -24,21 +24,27 @@ defmodule TeslaCodegenTest do
         "User"
       ]
 
-      %{schemas: result} = TeslaCodegen.generate(output_path, content)
+      %{schemas: result} = OpenApiCodegen.generate(output_path, content, :tesla)
 
       assert result == Enum.map(components, &Path.join(output_path <> "/components", "#{&1}.ex"))
 
       for component <- components do
         output_file = Path.join([output_path, "/components", "#{component}.ex"])
         assert File.exists?(output_file)
-        assert File.read!(output_file) == File.read!("test/support/fixtures/expected/components/#{component}.ex")
+        assert File.read!(output_file) == File.read!("test/support/fixtures/expected/tesla/components/#{component}.ex")
       end
     end
 
-    test "generates client", %{content: content, output_path: output_path} do
-      %{client: output_file} = TeslaCodegen.generate(output_path, content)
+    test "generates tesla client", %{content: content, output_path: output_path} do
+      %{client: output_file} = OpenApiCodegen.generate(output_path, content, :tesla)
       assert File.exists?(output_file)
-      assert File.read!(output_file) == File.read!("test/support/fixtures/expected/PetStore.ex")
+      assert File.read!(output_file) == File.read!("test/support/fixtures/expected/tesla/PetStore.ex")
+    end
+
+    test "generates req client", %{content: content, output_path: output_path} do
+      %{client: output_file} = OpenApiCodegen.generate(output_path, content, :req)
+      assert File.exists?(output_file)
+      assert File.read!(output_file) == File.read!("test/support/fixtures/expected/req/PetStore.ex")
     end
   end
 end
