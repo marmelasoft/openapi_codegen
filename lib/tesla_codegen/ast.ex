@@ -81,4 +81,26 @@ defmodule OpenApiCodegen.Ast do
     end)
     |> String.to_atom()
   end
+
+  @path_elements_pattern ~r/{([^}]*)}/
+  @doc """
+  Generates an interpolated string given a URL path.
+  """
+  def generate_path_interpolation(client_module_name, path) do
+    @path_elements_pattern
+    |> Regex.split(path, include_captures: true)
+    |> Enum.reject(&(&1 == ""))
+    |> Enum.map(fn path ->
+      case Regex.run(@path_elements_pattern, path) do
+        [_, path] ->
+          path
+          |> to_var(client_module_name)
+          |> then(&quote(do: :"Elixir.Kernel".to_string(unquote(&1)) :: binary))
+
+        _ ->
+          quote(do: unquote(path))
+      end
+    end)
+    |> then(&{:<<>>, [], &1})
+  end
 end
