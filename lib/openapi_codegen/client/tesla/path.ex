@@ -16,6 +16,8 @@ defmodule OpenApiCodeGen.Client.Tesla.Path do
   def generate(client_module_name, path, []), do: Ast.generate_path_interpolation(client_module_name, path)
 
   def generate(client_module_name, path, url_parameters) do
-    quote do: Tesla.build_url(unquote(Ast.generate_path_interpolation(client_module_name, path)), unquote(url_parameters))
+    quote do
+      Tesla.build_url(unquote(Ast.generate_path_interpolation(client_module_name, path)), unquote(url_parameters))
+    end
   end
 end

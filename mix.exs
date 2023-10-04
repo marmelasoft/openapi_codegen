@@ -10,6 +10,7 @@ defmodule TeslaCodegen.MixProject do
       version: @version,
       elixir: "~> 1.15",
       start_permanent: Mix.env() == :prod,
+      escript: escript(),
       deps: deps(),
       aliases: aliases(),
       dialyzer: [plt_add_apps: [:ex_unit]],
@@ -21,6 +22,10 @@ defmodule TeslaCodegen.MixProject do
 
   def application do
     [extra_applications: [:logger]]
+  end
+
+  defp escript do
+    [main_module: OpenApiCodeGen.CLI]
   end
 
   defp deps do
