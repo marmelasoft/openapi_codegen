@@ -1,5 +1,7 @@
 defmodule OpenApiCodeGen.CLI do
-  @moduledoc false
+  @moduledoc """
+  Command line interface for OpenApiCodeGen.
+  """
 
   def usage do
     """

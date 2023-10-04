@@ -1,6 +1,6 @@
 defmodule OpenApiCodeGen.Client.Req do
   @moduledoc """
-  Client generation operations.
+  Req client code generation.
   """
   alias OpenApiCodeGen.Ast
   alias OpenApiCodeGen.Client.QueryParam

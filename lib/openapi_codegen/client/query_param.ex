@@ -1,6 +1,6 @@
 defmodule OpenApiCodeGen.Client.QueryParam do
   @moduledoc """
-  Query param generation operations
+  Generates query param AST from OpenAPI spec using the `parameters` key.
   """
   alias OpenApiCodeGen.Ast
 

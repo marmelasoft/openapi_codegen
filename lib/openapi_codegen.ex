@@ -1,6 +1,6 @@
 defmodule OpenApiCodeGen do
   @moduledoc """
-  Generates Tesla client from OpenAPI specification.
+  Main module that coordinates the code generation.
   """
   alias OpenApiCodeGen.Ast
   alias OpenApiCodeGen.Client.Req

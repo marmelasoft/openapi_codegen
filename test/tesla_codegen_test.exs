@@ -7,7 +7,7 @@ defmodule OpenApiCodeGenTest do
     content = File.read!("test/support/fixtures/openapi_petstore.json")
     output_path = "tmp/lib/pet_store"
 
-    on_exit(fn -> File.rm_rf!(output_path) end)
+    on_exit(fn -> File.rm_rf!("tmp") end)
     %{content: content, output_path: output_path}
   end
 
