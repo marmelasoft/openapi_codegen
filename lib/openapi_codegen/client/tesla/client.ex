@@ -1,6 +1,6 @@
 defmodule OpenApiCodeGen.Client.Tesla do
   @moduledoc """
-  Client generation operations.
+  Tesla client code generation.
   """
   alias OpenApiCodeGen.Ast
   alias OpenApiCodeGen.Client.QueryParam
