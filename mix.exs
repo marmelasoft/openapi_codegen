@@ -3,14 +3,18 @@ defmodule TeslaCodegen.MixProject do
 
   @app :openapi_codegen
   @version "0.1.0-pre"
+  @description "OpenApiCodeGen is a Code Generation tool for Elixir"
 
   def project do
     [
       app: @app,
       version: @version,
+      description: @description,
       elixir: "~> 1.15",
       start_permanent: Mix.env() == :prod,
       escript: escript(),
+      package: package(),
+      docs: docs(),
       deps: deps(),
       aliases: aliases(),
       dialyzer: [plt_add_apps: [:ex_unit]],
@@ -26,6 +30,21 @@ defmodule TeslaCodegen.MixProject do
 
   defp escript do
     [main_module: OpenApiCodeGen.CLI]
+  end
+
+  defp docs do
+    [
+      main: "readme",
+      extras: [{:"README.md", [title: "Overview"]}],
+      source_ref: "v#{@version}"
+    ]
+  end
+
+  defp package do
+    [
+      licenses: ["MIT"],
+      links: %{"GitHub" => "https://github.com/marmelasoft/openapi_codegen"}
+    ]
   end
 
   defp deps do
