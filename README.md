@@ -15,6 +15,7 @@ Does not require you to install extra dependencies as we're using
 [] - Support Inheritance and Polymorphism
 [] - Add typespecs to generated Strucs
 [] - Add typespecs to Client
+[] - Generate tests for Client
 
 ## Installation
 Install it using:

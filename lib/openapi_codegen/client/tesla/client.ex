@@ -37,6 +37,8 @@ defmodule OpenApiCodeGen.Client.Tesla do
         use Tesla
 
         plug(Tesla.Middleware.BaseUrl, unquote(server))
+        plug(Tesla.Middleware.JSON)
+
         unquote_splicing(generate_functions_ast(client_module_name, paths))
       end
     end
@@ -105,15 +107,15 @@ defmodule OpenApiCodeGen.Client.Tesla do
 
         unquote(
           cond do
-            method == :get -> quote do: get(url)
-            method == :post and is_nil(request_body_arguments) -> quote do: post(url, %{})
-            method == :post -> quote do: post(url, unquote(elem(request_body_arguments, 0)))
-            method == :put and is_nil(request_body_arguments) -> quote do: put(url, %{})
-            method == :put -> quote do: put(url, unquote(elem(request_body_arguments, 0)))
-            method == :patch and is_nil(request_body_arguments) -> quote do: patch(url, %{})
-            method == :patch -> quote do: patch(url, unquote(elem(request_body_arguments, 0)))
-            method == :delete and is_nil(request_body_arguments) -> quote do: delete(url)
-            method == :delete -> quote do: delete(url, unquote(elem(request_body_arguments, 0)))
+            method == :get -> quote do: get!(url)
+            method == :post and is_nil(request_body_arguments) -> quote do: post!(url, %{})
+            method == :post -> quote do: post!(url, unquote(elem(request_body_arguments, 0)))
+            method == :put and is_nil(request_body_arguments) -> quote do: put!(url, %{})
+            method == :put -> quote do: put!(url, unquote(elem(request_body_arguments, 0)))
+            method == :patch and is_nil(request_body_arguments) -> quote do: patch!(url, %{})
+            method == :patch -> quote do: patch!(url, unquote(elem(request_body_arguments, 0)))
+            method == :delete and is_nil(request_body_arguments) -> quote do: delete!(url)
+            method == :delete -> quote do: delete!(url, unquote(elem(request_body_arguments, 0)))
           end
         )
       end
