@@ -1,7 +1,7 @@
-defmodule OpenApiCodegen.AstTest do
+defmodule OpenApiCodeGen.AstTest do
   use ExUnit.Case
 
-  alias OpenApiCodegen.Ast
+  alias OpenApiCodeGen.Ast
 
   doctest Ast, import: true
 

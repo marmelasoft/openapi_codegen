@@ -1,8 +1,8 @@
-defmodule OpenApiCodegen.Client.Req.Path do
+defmodule OpenApiCodeGen.Client.Req.Path do
   @moduledoc """
   Path generation operations for Req
   """
-  alias OpenApiCodegen.Ast
+  alias OpenApiCodeGen.Ast
 
   @doc """
   Generates an interpolated string to be used by the client.

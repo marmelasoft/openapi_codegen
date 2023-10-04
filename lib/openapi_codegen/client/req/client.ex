@@ -1,11 +1,11 @@
-defmodule OpenApiCodegen.Client.Req do
+defmodule OpenApiCodeGen.Client.Req do
   @moduledoc """
   Client generation operations.
   """
-  alias OpenApiCodegen.Ast
-  alias OpenApiCodegen.Client.QueryParam
-  alias OpenApiCodegen.Client.Req.Path
-  alias OpenApiCodegen.Client.RequestBody
+  alias OpenApiCodeGen.Ast
+  alias OpenApiCodeGen.Client.QueryParam
+  alias OpenApiCodeGen.Client.Req.Path
+  alias OpenApiCodeGen.Client.RequestBody
 
   @path_elements_pattern ~r/{([^}]*)}/
 

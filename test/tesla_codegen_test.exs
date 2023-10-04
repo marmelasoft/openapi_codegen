@@ -1,7 +1,7 @@
-defmodule OpenApiCodegenTest do
+defmodule OpenApiCodeGenTest do
   use ExUnit.Case
 
-  doctest OpenApiCodegen
+  doctest OpenApiCodeGen
 
   setup do
     content = File.read!("test/support/fixtures/openapi_petstore.json")
@@ -24,7 +24,7 @@ defmodule OpenApiCodegenTest do
         "User"
       ]
 
-      %{schemas: result} = OpenApiCodegen.generate(output_path, content, :tesla)
+      %{schemas: result} = OpenApiCodeGen.generate(output_path, content, :tesla)
 
       assert result == Enum.map(components, &Path.join(output_path <> "/components", "#{&1}.ex"))
 
@@ -36,13 +36,13 @@ defmodule OpenApiCodegenTest do
     end
 
     test "generates tesla client", %{content: content, output_path: output_path} do
-      %{client: output_file} = OpenApiCodegen.generate(output_path, content, :tesla)
+      %{client: output_file} = OpenApiCodeGen.generate(output_path, content, :tesla)
       assert File.exists?(output_file)
       assert File.read!(output_file) == File.read!("test/support/fixtures/expected/tesla/PetStore.ex")
     end
 
     test "generates req client", %{content: content, output_path: output_path} do
-      %{client: output_file} = OpenApiCodegen.generate(output_path, content, :req)
+      %{client: output_file} = OpenApiCodeGen.generate(output_path, content, :req)
       assert File.exists?(output_file)
       assert File.read!(output_file) == File.read!("test/support/fixtures/expected/req/PetStore.ex")
     end

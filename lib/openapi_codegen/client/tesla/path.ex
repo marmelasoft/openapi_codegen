@@ -1,8 +1,8 @@
-defmodule OpenApiCodegen.Client.Tesla.Path do
+defmodule OpenApiCodeGen.Client.Tesla.Path do
   @moduledoc """
   Path generation operations for Tesla
   """
-  alias OpenApiCodegen.Ast
+  alias OpenApiCodeGen.Ast
 
   @doc """
   Uses Tesla.build_url with an interpolated string and a set of parameters to generate the URLs to be used by the client

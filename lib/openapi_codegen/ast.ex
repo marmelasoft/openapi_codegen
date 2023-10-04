@@ -1,4 +1,4 @@
-defmodule OpenApiCodegen.Ast do
+defmodule OpenApiCodeGen.Ast do
   @moduledoc """
   AST operations.
   """

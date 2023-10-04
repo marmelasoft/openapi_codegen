@@ -1,8 +1,8 @@
-defmodule OpenApiCodegen.Client.RequestBody do
+defmodule OpenApiCodeGen.Client.RequestBody do
   @moduledoc """
   Request body generation operations
   """
-  alias OpenApiCodegen.Ast
+  alias OpenApiCodeGen.Ast
 
   @doc """
   Generates request body AST from OpenAPI spec using the `requestBody` key.

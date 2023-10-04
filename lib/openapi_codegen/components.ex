@@ -1,8 +1,8 @@
-defmodule OpenApiCodegen.Components do
+defmodule OpenApiCodeGen.Components do
   @moduledoc """
   Component generation operations.
   """
-  alias OpenApiCodegen.Ast
+  alias OpenApiCodeGen.Ast
 
   @doc """
   Generates components AST from OpenAPI spec using the `schemas` key.

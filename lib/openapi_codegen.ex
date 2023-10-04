@@ -1,11 +1,11 @@
-defmodule OpenApiCodegen do
+defmodule OpenApiCodeGen do
   @moduledoc """
   Generates Tesla client from OpenAPI specification.
   """
-  alias OpenApiCodegen.Ast
-  alias OpenApiCodegen.Client.Req
-  alias OpenApiCodegen.Client.Tesla
-  alias OpenApiCodegen.Components
+  alias OpenApiCodeGen.Ast
+  alias OpenApiCodeGen.Client.Req
+  alias OpenApiCodeGen.Client.Tesla
+  alias OpenApiCodeGen.Components
 
   @spec generate(Path.t(), binary(), :req | :tesla) :: %{schemas: list(Path.t()), client: Path.t()}
   def generate(path, spec, adapter) when is_binary(spec) do
