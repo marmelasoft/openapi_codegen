@@ -2,7 +2,7 @@ defmodule TeslaCodegen.MixProject do
   use Mix.Project
 
   @app :openapi_codegen
-  @version "0.0.0"
+  @version "0.1.0-pre"
 
   def project do
     [
