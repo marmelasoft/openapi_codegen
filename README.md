@@ -7,7 +7,7 @@ Currently supports two types of generation:
 * [Tesla](https://hexdocs.pm/tesla/readme.html) - Generates a module with a Tesla client.
 * [Req](https://hexdocs.pm/req/readme.html) - Generates a module using Req.
 
-By default we're using Jason for encoding and decoding of strucs
+By default we're using Jason for encoding and decoding of structs
 
 Does not require you to install extra dependencies as we're using
 
@@ -15,7 +15,7 @@ Does not require you to install extra dependencies as we're using
 
 - [ ] Support YAML specification parsing
 - [ ] Support Inheritance and Polymorphism
-- [ ] Add typespecs to generated Strucs
+- [ ] Add typespecs to generated Structs
 - [ ] Add typespecs to Client
 - [ ] Generate tests for Client
 
