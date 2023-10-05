@@ -2,7 +2,7 @@ defmodule TeslaCodegen.MixProject do
   use Mix.Project
 
   @app :openapi_codegen
-  @version "0.1.0-pre"
+  @version "0.1.0"
   @description "OpenApiCodeGen is a Code Generation tool for Elixir"
 
   def project do

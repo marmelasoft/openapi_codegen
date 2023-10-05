@@ -1,21 +1,17 @@
 defmodule OpenApiCodeGen.CLI do
   @moduledoc """
-  Command line interface for OpenApiCodeGen.
+  Usage: openapi_codegen [options] INPUT_FILE
+
+  Available options:
+
+    --output-path    Output directory where the code should be generated.
+    --req            To use the :req as HTTP client.
+    --tesla          To use the :tesla as HTTP client (default).
+
+  The --help and --version options can be given instead of a command for usage and versioning information.
   """
 
-  def usage do
-    """
-    Usage: openapi_codegen [options] INPUT_FILE
-
-    Available options:
-
-      --output-path    Output directory where the code should be generated.
-      --req            To use the :req as HTTP client.
-      --tesla          To use the :tesla as HTTP client.
-
-    The --help and --version options can be given instead of a command for usage and versioning information.
-    """
-  end
+  def usage, do: @moduledoc
 
   def main([arg]) when arg in ["--help", "-h"], do: display_help()
   def main([arg]) when arg in ["--version", "-v"], do: display_version()
