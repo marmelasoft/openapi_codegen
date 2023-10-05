@@ -13,11 +13,11 @@ Does not require you to install extra dependencies as we're using
 
 ## Roadmap
 
-- [] Support YAML specification parsing
-- [] Support Inheritance and Polymorphism
-- [] Add typespecs to generated Strucs
-- [] Add typespecs to Client
-- [] Generate tests for Client
+- [ ] Support YAML specification parsing
+- [ ] Support Inheritance and Polymorphism
+- [ ] Add typespecs to generated Strucs
+- [ ] Add typespecs to Client
+- [ ] Generate tests for Client
 
 ## Installation
 
