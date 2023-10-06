@@ -62,6 +62,7 @@ defmodule OpenApiCodeGen.Client.Req do
       generate_function_arguments(client_module_name, path, request_body_arguments, url_parameters)
 
     build_request_function_ast(
+      client_module_name,
       func_name,
       method,
       request_path,
@@ -106,6 +107,7 @@ defmodule OpenApiCodeGen.Client.Req do
 
   # credo:disable-for-next-line Credo.Check.Refactor.CyclomaticComplexity
   defp build_request_function_ast(
+         client_module_name,
          func_name,
          method,
          request_path,
@@ -113,86 +115,27 @@ defmodule OpenApiCodeGen.Client.Req do
          request_body_arguments,
          url_parameters
        ) do
-    quote do
-      # credo:disable-for-next-line Credo.Check.Refactor.CyclomaticComplexity
+    opts =
+      cond do
+        url_parameters == [] and is_nil(request_body_arguments) -> []
+        is_nil(request_body_arguments) -> [params: url_parameters]
+        url_parameters == [] -> [json: elem(request_body_arguments, 0)]
+        true -> [json: elem(request_body_arguments, 0), params: url_parameters]
+      end
+
+    opts = [url: Ast.to_var("url", client_module_name)] ++ opts
+
+    quote location: :keep do
       def unquote(Ast.sanitize_name(func_name))(unquote_splicing(function_arguments)) do
         url = unquote(request_path)
 
         unquote(
           cond do
-            method == :get and url_parameters == [] ->
-              quote do: Req.get!(@req, url: url)
-
-            method == :get ->
-              quote do: Req.get!(@req, url: url, params: unquote(url_parameters))
-
-            method == :post and url_parameters == [] and is_nil(request_body_arguments) ->
-              quote do: Req.post!(@req, url: url, json: %{})
-
-            method == :post and is_nil(request_body_arguments) ->
-              quote do: Req.post!(@req, url: url, json: %{}, params: unquote(url_parameters))
-
-            method == :post and url_parameters == [] ->
-              quote do: Req.post!(@req, url: url, json: unquote(elem(request_body_arguments, 0)))
-
-            method == :post ->
-              quote do:
-                      Req.post!(@req,
-                        url: url,
-                        json: unquote(elem(request_body_arguments, 0)),
-                        params: unquote(url_parameters)
-                      )
-
-            method == :put and url_parameters == [] and is_nil(request_body_arguments) ->
-              quote do: Req.put!(@req, url: url, json: %{})
-
-            method == :put and is_nil(request_body_arguments) ->
-              quote do: Req.put!(@req, url: url, json: %{}, params: unquote(url_parameters))
-
-            method == :put and url_parameters == [] ->
-              quote do: Req.put!(@req, url: url, json: unquote(elem(request_body_arguments, 0)))
-
-            method == :put ->
-              quote do:
-                      Req.put!(@req,
-                        url: url,
-                        json: unquote(elem(request_body_arguments, 0)),
-                        params: unquote(url_parameters)
-                      )
-
-            method == :patch and url_parameters == [] and is_nil(request_body_arguments) ->
-              quote do: Req.patch!(@req, url: url, json: %{})
-
-            method == :patch and is_nil(request_body_arguments) ->
-              quote do: Req.patch!(@req, url: url, json: %{}, params: unquote(url_parameters))
-
-            method == :patch and url_parameters == [] ->
-              quote do: Req.patch!(@req, url: url, json: unquote(elem(request_body_arguments, 0)))
-
-            method == :patch ->
-              quote do:
-                      Req.patch!(@req,
-                        url: url,
-                        json: unquote(elem(request_body_arguments, 0)),
-                        params: unquote(url_parameters)
-                      )
-
-            method == :delete and url_parameters == [] and is_nil(request_body_arguments) ->
-              quote do: Req.delete!(@req, url: url, json: %{})
-
-            method == :delete and is_nil(request_body_arguments) ->
-              quote do: Req.delete!(@req, url: url, json: %{}, params: unquote(url_parameters))
-
-            method == :delete and url_parameters == [] ->
-              quote do: Req.delete!(@req, url: url, json: unquote(elem(request_body_arguments, 0)))
-
-            method == :delete ->
-              quote do:
-                      Req.delete!(@req,
-                        url: url,
-                        json: unquote(elem(request_body_arguments, 0)),
-                        params: unquote(url_parameters)
-                      )
+            method == :get -> quote do: Req.get!(@req, unquote(opts))
+            method == :post -> quote do: Req.post!(@req, unquote(opts))
+            method == :put -> quote do: Req.put!(@req, unquote(opts))
+            method == :patch -> quote do: Req.patch!(@req, unquote(opts))
+            method == :delete -> quote do: Req.delete!(@req, unquote(opts))
           end
         )
       end
