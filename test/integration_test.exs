@@ -40,6 +40,33 @@ defmodule IntegrationTest do
 
       assert_functions(Req.Response)
     end
+
+    test "parsing yaml is the same as json" do
+      result_json =
+        %{client: _client, schemas: _schemas} =
+        OpenApiCodeGen.CLI.main([
+          "--output-path",
+          "tmp/integration/req/petstore_client",
+          "test/support/fixtures/petstore/openapi_v31.json"
+        ])
+
+      result_yaml =
+        OpenApiCodeGen.CLI.main([
+          "--output-path",
+          "tmp/integration/req/petstore_client",
+          "test/support/fixtures/petstore/openapi_v31.yaml"
+        ])
+
+      result_yml =
+        OpenApiCodeGen.CLI.main([
+          "--output-path",
+          "tmp/integration/req/petstore_client",
+          "test/support/fixtures/petstore/openapi_v31.yml"
+        ])
+
+      assert result_json == result_yaml
+      assert result_json == result_yml
+    end
   end
 
   # credo:disable-for-lines Credo.Check.Refactor.Apply
