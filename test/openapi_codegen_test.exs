@@ -4,7 +4,11 @@ defmodule OpenApiCodeGenTest do
   doctest OpenApiCodeGen
 
   setup do
-    content = File.read!("test/support/fixtures/openapi_petstore.json")
+    content =
+      "test/support/fixtures/openapi_petstore.json"
+      |> File.read!()
+      |> Jason.decode!()
+
     output_path = "tmp/lib/pet_store"
 
     on_exit(fn -> File.rm_rf!("tmp") end)

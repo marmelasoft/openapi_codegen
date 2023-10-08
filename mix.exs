@@ -50,10 +50,13 @@ defmodule TeslaCodegen.MixProject do
 
   defp deps do
     [
+      # http clients
       {:tesla, "~> 1.7"},
       {:req, "~> 0.4.0"},
+
       # parsers
       {:jason, "~> 1.4"},
+      {:yaml_elixir, "~> 2.9"},
 
       # tools
       {:styler, "~> 0.8"},

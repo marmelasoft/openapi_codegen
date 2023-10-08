@@ -23,9 +23,27 @@ defmodule OpenApiCodeGen.CLI do
     use_req? = opts[:req]
 
     if use_req? do
-      OpenApiCodeGen.generate(output_path, File.read!(openapi_spec_path), :req)
+      OpenApiCodeGen.generate(output_path, read_spec_file!(openapi_spec_path), :req)
     else
-      OpenApiCodeGen.generate(output_path, File.read!(openapi_spec_path), :tesla)
+      OpenApiCodeGen.generate(output_path, read_spec_file!(openapi_spec_path), :tesla)
+    end
+  end
+
+  defp read_spec_file!(file_path) do
+    content = File.read!(file_path)
+
+    case Path.extname(file_path) do
+      ".json" ->
+        Jason.decode!(content)
+
+      ".yml" ->
+        YamlElixir.read_from_string!(content)
+
+      ".yaml" ->
+        YamlElixir.read_from_string!(content)
+
+      ext ->
+        raise "file extension #{ext} not supported"
     end
   end
 

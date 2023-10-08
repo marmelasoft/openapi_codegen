@@ -7,16 +7,14 @@ defmodule OpenApiCodeGen do
   alias OpenApiCodeGen.Client.Tesla
   alias OpenApiCodeGen.Components
 
-  @spec generate(Path.t(), binary(), :req | :tesla) :: %{schemas: list(Path.t()), client: Path.t()}
-  def generate(path, spec, adapter) when is_binary(spec) do
+  @spec generate(Path.t(), map(), :req | :tesla) :: %{schemas: list(Path.t()), client: Path.t()}
+  def generate(path, spec, adapter) when is_map(spec) do
     name =
       path
       |> Path.split()
       |> Enum.take(-1)
       |> hd()
       |> Macro.camelize()
-
-    spec = Jason.decode!(spec)
 
     schemas = Components.generate(name, spec)
 
