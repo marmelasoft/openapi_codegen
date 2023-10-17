@@ -13,6 +13,10 @@ defmodule OpenApiCodeGen.Components do
   def generate(client_module_name, %{"components" => %{"schemas" => schemas}}),
     do: schemas |> Enum.map(&generate_component(client_module_name, &1)) |> Enum.reject(&is_nil/1)
 
+  defp generate_component(client_module_name, {key, %{"properties" => properties, "required" => required}}) do
+    {key, build_component_ast(client_module_name, key, properties, required)}
+  end
+
   defp generate_component(client_module_name, {key, %{"properties" => properties}}) do
     {key, build_component_ast(client_module_name, key, properties)}
   end
@@ -23,7 +27,7 @@ defmodule OpenApiCodeGen.Components do
 
   defp generate_component(_, _), do: nil
 
-  defp build_component_ast(client_module_name, key, properties) do
+  defp build_component_ast(client_module_name, key, properties, required \\ []) do
     component_module_name =
       key
       |> Ast.sanitize_name(:camelize)
@@ -33,6 +37,7 @@ defmodule OpenApiCodeGen.Components do
       defmodule unquote(component_module_name) do
         @moduledoc unquote("Structure for #{key} component")
         @derive Jason.Encoder
+        @enforce_keys unquote(Enum.map(required, &Ast.sanitize_name/1))
         defstruct(
           unquote(
             properties
