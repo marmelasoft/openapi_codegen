@@ -1,4 +1,4 @@
-defmodule TeslaCodegen.MixProject do
+defmodule OpenApiCodeGen.MixProject do
   use Mix.Project
 
   @app :openapi_codegen
