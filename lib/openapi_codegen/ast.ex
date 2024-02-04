@@ -17,7 +17,7 @@ defmodule OpenApiCodeGen.Ast do
     |> tap(&File.write!(file_path, &1))
     |> Code.format_string!()
     |> Enum.join()
-    |> then(&Styler.format(&1, []))
+    |> Styler.format([])
     |> then(&File.write!(file_path, &1))
 
     file_path
@@ -59,7 +59,7 @@ defmodule OpenApiCodeGen.Ast do
     name =
       name
       |> String.replace(~r/\W/, "_")
-      |> then(&String.replace(&1, ~r/^\d/, "Component\\0"))
+      |> String.replace(~r/^\d/, "Component\\0")
       |> then(
         &case transform do
           :camelize -> Macro.camelize(&1)
