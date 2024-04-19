@@ -2,6 +2,7 @@ defmodule OpenApiCodeGen.Client.Req do
   @moduledoc """
   Req client code generation.
   """
+
   alias OpenApiCodeGen.Ast
   alias OpenApiCodeGen.Client.QueryParam
   alias OpenApiCodeGen.Client.Req.Path
@@ -130,12 +131,12 @@ defmodule OpenApiCodeGen.Client.Req do
         url = unquote(request_path)
 
         unquote(
-          cond do
-            method == :get -> quote do: Req.get!(@req, unquote(opts))
-            method == :post -> quote do: Req.post!(@req, unquote(opts))
-            method == :put -> quote do: Req.put!(@req, unquote(opts))
-            method == :patch -> quote do: Req.patch!(@req, unquote(opts))
-            method == :delete -> quote do: Req.delete!(@req, unquote(opts))
+          case method do
+            :get -> quote do: Req.get!(@req, unquote(opts))
+            :post -> quote do: Req.post!(@req, unquote(opts))
+            :put -> quote do: Req.put!(@req, unquote(opts))
+            :patch -> quote do: Req.patch!(@req, unquote(opts))
+            :delete -> quote do: Req.delete!(@req, unquote(opts))
           end
         )
       end

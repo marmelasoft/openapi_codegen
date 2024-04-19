@@ -1,7 +1,8 @@
 defmodule OpenApiCodeGen.Client.Req.Path do
   @moduledoc """
-  Path generation operations for Req
+  Path generation operations for Req.
   """
+
   alias OpenApiCodeGen.Ast
 
   @doc """

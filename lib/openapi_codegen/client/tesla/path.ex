@@ -1,7 +1,8 @@
 defmodule OpenApiCodeGen.Client.Tesla.Path do
   @moduledoc """
-  Path generation operations for Tesla
+  Path generation operations for Tesla.
   """
+
   alias OpenApiCodeGen.Ast
 
   @doc """

@@ -1,6 +1,6 @@
 defmodule OpenApiCodeGen.Ast do
   @moduledoc """
-  Contains functions to help with Ast operations
+  Contains functions to help with Ast operations.
   """
 
   @doc """
