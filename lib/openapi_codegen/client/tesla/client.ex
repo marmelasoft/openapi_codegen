@@ -45,16 +45,14 @@ defmodule OpenApiCodeGen.Client.Tesla do
     end
   end
 
-  defp generate_functions_ast(client_module_name, paths), do: Enum.map(paths, &generate_function(client_module_name, &1))
+  defp generate_functions_ast(client_module_name, paths) do
+    Enum.map(paths, fn {path, methods} ->
+      generate_function(client_module_name, {path, Map.to_list(methods)})
+    end)
+  end
 
-  defp generate_function(client_module_name, spec) do
-    case spec do
-      {path, %{"get" => content}} -> generate_function(client_module_name, path, content, :get)
-      {path, %{"post" => content}} -> generate_function(client_module_name, path, content, :post)
-      {path, %{"put" => content}} -> generate_function(client_module_name, path, content, :put)
-      {path, %{"delete" => content}} -> generate_function(client_module_name, path, content, :delete)
-      {path, %{"patch" => content}} -> generate_function(client_module_name, path, content, :patch)
-    end
+  defp generate_function(client_module_name, {path, [{method, content}]}) do
+    generate_function(client_module_name, path, content, Atom.to_string(method))
   end
 
   defp generate_function(client_module_name, path, %{"operationId" => func_name} = schema, method) do
